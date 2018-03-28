@@ -294,7 +294,10 @@ abstract class AbstractFutubankCallbackHandler {
     */
     abstract protected function mark_order_as_error($order, array $data);
 
-    function show(array $data) {
+    function show(array $data) {        
+        if (get_magic_quotes_gpc()) {
+           array_walk_recursive($data, 'AbstractFutubankCallbackHandler::stripslashes_gpc');
+        }
         $error = null;
         $debug_messages = array();
         $ff = $this->get_futubank_form();
@@ -337,6 +340,10 @@ abstract class AbstractFutubankCallbackHandler {
         foreach ($debug_messages as $msg) {
             echo "...$msg\n";
         }
+    }
+
+    static function stripslashes_gpc(&$value) {
+        $value = stripslashes($value);
     }
 }
 

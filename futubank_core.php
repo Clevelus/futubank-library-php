@@ -159,20 +159,20 @@ class FutubankForm {
             'recurring_finish_date' => $recurring_finish_date,
         );
         if ($receipt_items) {
-        	if (!$receipt_contact) {
-        		throw new Exception('receipt_contact required');
-        	}
-        	$items_sum = 0;
-        	$items_arr = array();
-        	foreach ($receipt_items as $item) {
-        	 	$items_sum += $item->get_sum();
-        	 	$items_arr[] = $item->as_dict();  
-        	}
-        	if ($items_sum != $amount) {
-        		throw new Exception('Amounts mismatched');
-        	}
-        	$form['receipt_contact'] = $receipt_contact;
-        	$form['receipt_items'] = json_encode($items_arr);
+            if (!$receipt_contact) {
+                throw new Exception('receipt_contact required');
+            }
+            $items_sum = 0;
+            $items_arr = array();
+            foreach ($receipt_items as $item) {
+                $items_sum += $item->get_sum();
+                $items_arr[] = $item->as_dict();  
+            }
+            if ($items_sum != $amount) {
+                throw new Exception('Amounts mismatched');
+            }
+            $form['receipt_contact'] = $receipt_contact;
+            $form['receipt_items'] = json_encode($items_arr);
         };
         $form['signature'] = $this->get_signature($form);
         return $form;
@@ -180,7 +180,7 @@ class FutubankForm {
 
     private function get_sysinfo() {
         return json_encode(array(
-        	'json_enabled' => true,
+            'json_enabled' => true,
             'language' => 'PHP ' . phpversion(),
             'plugin' => $this->plugininfo,
             'cms' => $this->cmsinfo,
@@ -381,12 +381,12 @@ class FutubankRecieptItem {
         $arr = str_split($s);
         $allowed_chars = str_split('0123456789"(),.:;- йцукенгшщзхъфывапролджэёячсмитьбюqwertyuiopasdfghjklzxcvbnm');
         foreach ($arr as $char) {
-        	if (len($result) >= $max_chars) {
-        		break;
-        	}
-        	if (in_array(strtolower($char), $allowed_chars)) {
-        		$result += $char;
-        	}
+            if (len($result) >= $max_chars) {
+                break;
+            }
+            if (in_array(strtolower($char), $allowed_chars)) {
+                $result += $char;
+            }
         }
         return $result;
     }

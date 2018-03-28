@@ -392,7 +392,7 @@ class FutubankRecieptItem {
                 break;
             }
             if (in_array(strtolower($char), $allowed_chars)) {
-                $result += $char;
+                $result .= $char;
             }
         }
         return $result;

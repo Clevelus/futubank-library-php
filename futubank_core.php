@@ -86,6 +86,35 @@
  * );
  *
  */
+if (!function_exists('mb_str_split')) {
+    /**
+     * Convert a multibyte string to an array
+     * 
+     * @param  string  $string       The input string.
+     * @param  integer $split_length Maximum length of the chunk.
+     * @param  string  $encoding     The encoding parameter is the character encoding.
+     * @return array
+     */
+    function mb_str_split($string, $split_length = 1, $encoding = null)
+    {
+        if (is_null($encoding)) {
+            $encoding = mb_internal_encoding();
+        }
+
+        if ($split_length < 1) {
+            return false;
+        }
+
+        $return_value = array();
+        $string_length  = mb_strlen($string, $encoding);
+        for ($i = 0; $i < $string_length; $i += $split_length)
+        {
+            $return_value[] = mb_substr($string, $i, $split_length, $encoding);
+        }
+        return $return_value;
+    }
+}
+
 class FutubankForm {
     private $merchant_id;
     private $secret_key;
@@ -385,13 +414,13 @@ class FutubankRecieptItem {
 
     private static function clean_title($s, $max_chars=64) {
         $result = '';
-        $arr = str_split($s);
-        $allowed_chars = str_split('0123456789"(),.:;- йцукенгшщзхъфывапролджэёячсмитьбюqwertyuiopasdfghjklzxcvbnm');
+        $arr = mb_str_split($s);
+        $allowed_chars = mb_str_split('0123456789"(),.:;- йцукенгшщзхъфывапролджэёячсмитьбюqwertyuiopasdfghjklzxcvbnm');
         foreach ($arr as $char) {
-            if (strlen($result) >= $max_chars) {
+            if (mb_strlen($result) >= $max_chars) {
                 break;
             }
-            if (in_array(strtolower($char), $allowed_chars)) {
+            if (in_array(mb_strtolower($char), $allowed_chars)) {
                 $result .= $char;
             }
         }

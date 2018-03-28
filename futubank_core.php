@@ -30,7 +30,9 @@
  *                              //                                     'month', 'quartal', 'half-year', 'year')
  *     $recurring_finish_date,  // Конечная дата периодических платежей (необязательно, дата в формате 'YYYY-MM-DD')
  *     $recurrind_tx_id = '',   // Для рекуррентного платежа - id первой транзакции (необязательно)
- *     $recurring_token = ''    // Для рекуррентного платежа - токен рекуррентного платежа (необязательно)
+ *     $recurring_token = '',   // Для рекуррентного платежа - токен рекуррентного платежа (необязательно)
+ *     $receipt_contact,  // контакт (телефон или email) для чеков
+ *     $receipt_items,    // массив элементов чека
  * );
  *
  * // далее можно самостоятельно вывести $form в виде hidden-полей,
@@ -129,7 +131,9 @@ class FutubankForm {
         $meta = '',
         $description = '',
         $recurring_frequency = '',
-        $recurring_finish_date = ''
+        $recurring_finish_date = '',
+        $receipt_contact = '',
+        array $receipt_items = null
     ) {
         if (!$description) {
             $description = "Заказ №$order_id";
@@ -152,19 +156,35 @@ class FutubankForm {
             'meta'                  => $meta,
             'sysinfo'               => $this->get_sysinfo(),
             'recurring_frequency'   => $recurring_frequency,
-            'recurring_finish_date' => $recurring_finish_date
+            'recurring_finish_date' => $recurring_finish_date,
         );
+        if ($receipt_items) {
+        	if (!$receipt_contact) {
+        		throw new Exception('receipt_contact required');
+        	}
+        	$items_sum = 0;
+        	$items_arr = array();
+        	foreach ($receipt_items as $item) {
+        	 	$items_sum += $item->get_sum();
+        	 	$items_arr[] = $item->as_dict();  
+        	}
+        	if ($items_sum != $amount) {
+        		throw new Exception('Amounts mismatched');
+        	}
+        	$form['receipt_contact'] = $receipt_contact;
+        	$form['receipt_items'] = json_encode($items_arr);
+        };
         $form['signature'] = $this->get_signature($form);
         return $form;
     }
 
     private function get_sysinfo() {
-        return ('{' .
-            '"json_enabled": ' . var_export(function_exists('json_encode'), 1) . ', ' .
-            '"language": "PHP ' . phpversion() . '", ' .
-            '"plugin": "' . $this->plugininfo . '", ' .
-            '"cms": "' . $this->cmsinfo . '"' .
-        '}');
+        return json_encode(array(
+        	'json_enabled' => true,
+            'language' => 'PHP ' . phpversion(),
+            'plugin' => $this->plugininfo,
+            'cms' => $this->cmsinfo,
+        ));
     }
 
     function is_signature_correct(array $form) {
@@ -317,5 +337,57 @@ abstract class AbstractFutubankCallbackHandler {
         foreach ($debug_messages as $msg) {
             echo "...$msg\n";
         }
+    }
+}
+
+
+class FutubankRecieptItem {
+    const TAX_NO_NDS = 1;  # без НДС;
+    const TAX_0_NDS = 2;  # НДС по ставке 0%;
+    const TAX_10_NDS = 3;  # НДС чека по ставке 10%;
+    const TAX_18_NDS = 4;  # НДС чека по ставке 18%
+    const TAX_10_110_NDS = 5;  # НДС чека по расчетной ставке 10/110;
+    const TAX_18_118_NDS = 6;  # НДС чека по расчетной ставке 18/118.
+
+    private $title;
+    private $amount;
+    private $n;
+    private $nds;
+
+    function __construct($title, $amount, $n = 1, $nds = null) {
+        $this->title = self::clean_title($title);
+        $this->amount = $amount;
+        $this->n = $n;
+        $this->nds = $nds ? $nds : self::TAX_0_NDS;
+    }
+
+    function as_dict() {
+        return array(
+            'quantity' => $this->n,
+            'price' => array(
+                'amount' => $this->amount,
+            ),
+            'tax' => $this->nds,
+            'text' => $this->title,
+        );
+    }
+
+    function get_sum() {
+        return $this->n * $this->amount;
+    }
+
+    private static function clean_title($s, $max_chars=64) {
+        $result = '';
+        $arr = str_split($s);
+        $allowed_chars = str_split('0123456789"(),.:;- йцукенгшщзхъфывапролджэёячсмитьбюqwertyuiopasdfghjklzxcvbnm');
+        foreach ($arr as $char) {
+        	if (len($result) >= $max_chars) {
+        		break;
+        	}
+        	if (in_array(strtolower($char), $allowed_chars)) {
+        		$result += $char;
+        	}
+        }
+        return $result;
     }
 }

@@ -106,7 +106,7 @@ class FPaymentsForm {
             'recurring_frequency'   => $recurring_frequency,
             'recurring_finish_date' => $recurring_finish_date,
         );
-        if (FPaymentsConfig::RECIEPTS_REQUIRED) {
+        if ($receipt_items) {
             if (!$receipt_contact) {
                 throw new FPaymentsError('receipt_contact required');
             }

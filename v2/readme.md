@@ -128,16 +128,17 @@ $form_data = $form->compose(
 `$receipt_items` — самое интересное поле. Это массив объектов `FPaymentsRecieptItem`. И суммарные данные в нём 
 должны совпадать со значением `$amount` (иначе вылетит исключение `FPaymentsError`). 
 
-Разберём на примере: заказ бутылка кефира за 99 рублей и три батона по 30. 99+30*3 = 189.
+Разберём на примере: заказ бутылка кефира за 99 рублей, три батона по 30, доставка 200 рублей. 99+30*3 + 200 = 389.
 
 ```php
-$amount = 189;
+$amount = 389;
 $currency = 'RUB';
 // ....
 $receipt_contact = 'test@test.ru';
 $receipt_items = array(
-    FPaymentsRecieptItem('Бутылка кефира', 99, 1, $nds),
-    FPaymentsRecieptItem('Батон', 30, 3, $nds),
+    new FPaymentsRecieptItem('Бутылка кефира', 99, 1, $nds),
+    new FPaymentsRecieptItem('Батон', 30, 3, $nds),
+    new FPaymentsRecieptItem('Доставка', 200),  // если доставка бесплатная, ничего такого не надо
 );
 // ... 
 $form_data = $form->compose($amount, $currency, /* ...... */ $receipt_contact, $receipt_items);
@@ -275,4 +276,3 @@ $result = $form->rebill(
     $description = ''  // описание заказа (необязательно)
 );
 ```
-

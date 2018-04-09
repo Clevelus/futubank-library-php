@@ -51,19 +51,18 @@ class FPaymentsForm {
         $this->is_test = (bool) $is_test;
         $this->plugininfo = $plugininfo ?: 'FPayments/PHP v.' . phpversion();
         $this->cmsinfo = $cmsinfo;
-        $this->host = FPaymentsConfig::HOST;
     }
 
-    function abs($path) {
-        return $this->host . $path;
+    public static function abs($path) {
+        return FPaymentsConfig::HOST . $path;
     }
 
     function get_url() {
-        return $this->abs('/pay/');
+        return self::abs('/pay/');
     }
 
     function get_rebill_url() {
-        return $this->abs('/api/v1/rebill/');
+        return self::abs('/api/v1/rebill/');
     }
 
     function compose(
@@ -117,7 +116,7 @@ class FPaymentsForm {
                 $items_arr[] = $item->as_dict();  
             }
             if ($items_sum != $amount) {
-                throw new FPaymentsError('Amounts mismatched');
+                throw new FPaymentsError("Amounts mismatched: ${items_sum} != ${amount}");
             }
             $form['receipt_contact'] = $receipt_contact;
             $form['receipt_items'] = json_encode($items_arr);

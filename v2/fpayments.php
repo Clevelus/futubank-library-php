@@ -126,7 +126,6 @@ class FPaymentsForm {
 
     private function get_sysinfo() {
         return json_encode(array(
-            'json_enabled' => true,
             'language' => 'PHP ' . phpversion(),
             'plugin' => $this->plugininfo,
             'cms' => $this->cmsinfo,

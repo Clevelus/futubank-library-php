@@ -291,38 +291,43 @@ abstract class AbstractFPaymentsCallbackHandler {
 
 
 class FPaymentsRecieptItem {
-    const NO_VAT  = 'no_vat';   # без НДС;
-    const VAT_0   = 'vat_0';    # НДС по ставке 0%;
-    const VAT_10  = 'vat_10';   # НДС чека по ставке 10%;
+    const NO_VAT  = 'no_vat';   # без НДС
+    const VAT_0   = 'vat_0';    # НДС по ставке 0%
+    const VAT_10  = 'vat_10';   # НДС чека по ставке 10%
     const VAT_18  = 'vat_18';   # НДС чека по ставке 18%
-    const VAT_110 = 'vat_110';  # НДС чека по расчетной ставке 10/110;
-    const VAT_118 = 'vat_118';  # НДС чека по расчетной ставке 18/118.
+    const VAT_110 = 'vat_110';  # НДС чека по расчетной ставке 10/110
+    const VAT_118 = 'vat_118';  # НДС чека по расчетной ставке 18/118
 
     private $title;
-    private $amount;
+    private $price;
     private $n;
+    private $discount_amount;
     private $nds;
 
-    function __construct($title, $amount, $n = 1, $nds = null) {
+    function __construct($title, $price, $n = 1, $discount_amount = null, $nds = null) {
         $this->title = self::clean_title($title);
-        $this->amount = $amount;
+        $this->price = $price;
         $this->n = $n;
+        $this->discount_amount = $discount_amount;
         $this->nds = $nds ? $nds : self::NO_VAT;
     }
 
     function as_dict() {
         return array(
             'quantity' => $this->n,
-            'price' => array(
-                'amount' => $this->amount,
-            ),
-            'tax' => $this->nds,
+            'price' => $this->price,
+            'discount_amount' => $this->discount_amount,
+            'vat' => $this->nds,
             'text' => $this->title,
         );
     }
 
     function get_sum() {
-        return $this->n * $this->amount;
+        $result = $this->n * $this->price;
+        if ($this->discount_amount) {
+            $result = $result - $this->discount_amount;
+        }
+        return $result;
     }
 
     private static function clean_title($s, $max_chars=64) {

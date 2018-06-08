@@ -291,12 +291,12 @@ abstract class AbstractFPaymentsCallbackHandler {
 
 
 class FPaymentsRecieptItem {
-    const TAX_NO_NDS = 1;  # без НДС;
-    const TAX_0_NDS = 2;  # НДС по ставке 0%;
-    const TAX_10_NDS = 3;  # НДС чека по ставке 10%;
-    const TAX_18_NDS = 4;  # НДС чека по ставке 18%
-    const TAX_10_110_NDS = 5;  # НДС чека по расчетной ставке 10/110;
-    const TAX_18_118_NDS = 6;  # НДС чека по расчетной ставке 18/118.
+    const NO_VAT  = 'no_vat';   # без НДС;
+    const VAT_0   = 'vat_0';    # НДС по ставке 0%;
+    const VAT_10  = 'vat_10';   # НДС чека по ставке 10%;
+    const VAT_18  = 'vat_18';   # НДС чека по ставке 18%
+    const VAT_110 = 'vat_110';  # НДС чека по расчетной ставке 10/110;
+    const VAT_118 = 'vat_118';  # НДС чека по расчетной ставке 18/118.
 
     private $title;
     private $amount;
@@ -307,7 +307,7 @@ class FPaymentsRecieptItem {
         $this->title = self::clean_title($title);
         $this->amount = $amount;
         $this->n = $n;
-        $this->nds = $nds ? $nds : self::TAX_0_NDS;
+        $this->nds = $nds ? $nds : self::NO_VAT;
     }
 
     function as_dict() {

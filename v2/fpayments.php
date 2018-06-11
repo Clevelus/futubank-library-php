@@ -317,7 +317,7 @@ class FPaymentsRecieptItem {
             'price' => $this->price,
             'discount_amount' => $this->discount_amount,
             'vat' => $this->nds,
-            'text' => $this->title,
+            'title' => $this->title,
         );
     }
 

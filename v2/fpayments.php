@@ -60,6 +60,10 @@ class FPaymentsForm {
         return self::abs('/pay/');
     }
 
+    function get_transaction_info_url() {
+        return self::abs('/api/v1/transaction/');
+    }
+
     function get_rebill_url() {
         return self::abs('/api/v1/rebill/');
     }
@@ -216,6 +220,34 @@ class FPaymentsForm {
         $result = curl_exec($ch);
         curl_close($ch);
         return json_decode($result);
+    }
+
+    function getTransactionInfo($transaction_id) {
+        $form = array(
+            'transaction_id'        => $transaction_id,
+            'merchant'              => $this->merchant_id,
+            'unix_timestamp'        => time(),
+            'salt'                  => $this->get_salt(32),
+        );
+        $form['signature'] = $this->get_signature($form);
+        $paramstr = http_build_query($form);
+        $ch = curl_init($this->get_transaction_info_url() . '?' . $paramstr);
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->plugininfo);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+
+        if (curl_error($ch)) {
+            error_log("Error while requesting transaction info: ".curl_error($ch));
+            return;
+        }
+        curl_close($ch);
+
+        $data = json_decode($result, true);
+
+        if ($data['status'] != 'ok') {
+            return;
+        }
+        return $data['transaction'];
     }
 }
 

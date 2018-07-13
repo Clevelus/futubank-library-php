@@ -1,4 +1,7 @@
 <?php
+
+namespace FPayments;
+
 if (!function_exists('mb_str_split')) {
     function mb_str_split($string, $split_length = 1, $encoding = null) {
         if (is_null($encoding)) {
@@ -28,7 +31,7 @@ if (!function_exists('stripslashes_gpc')) {
 require_once "fpayments_config.php";
 
 
-class FPaymentsError extends Exception {}
+class FPaymentsError extends \Exception {}
 
 
 class FPaymentsForm {
@@ -120,8 +123,9 @@ class FPaymentsForm {
                 $items_sum += $item->get_sum();
                 $items_arr[] = $item->as_dict();  
             }
+            $items_sum = round($items_sum, 2);
             if ($items_sum != $amount) {
-                throw new FPaymentsError("Amounts mismatched: ${items_sum} != ${amount}");
+                throw new FPaymentsError("Amounts mismatch: sum of cart items: ${items_sum}, order amount: ${amount}");
             }
             $form['receipt_contact'] = $receipt_contact;
             $form['receipt_items'] = json_encode($items_arr);
@@ -314,7 +318,7 @@ abstract class AbstractFPaymentsCallbackHandler {
         if ($error) {
             echo "ERROR: $error\n";
         } else {
-            echo "OK$order_id\n";
+            echo "OK $order_id\n";
         }
         foreach ($debug_messages as $msg) {
             echo "...$msg\n";

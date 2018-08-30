@@ -328,24 +328,23 @@ abstract class AbstractFPaymentsCallbackHandler {
 
 
 class FPaymentsRecieptItem {
-    const NO_VAT  = 'no_vat';   # без НДС
-    const VAT_0   = 'vat_0';    # НДС по ставке 0%
-    const VAT_10  = 'vat_10';   # НДС чека по ставке 10%
-    const VAT_18  = 'vat_18';   # НДС чека по ставке 18%
-    const VAT_110 = 'vat_110';  # НДС чека по расчетной ставке 10/110
-    const VAT_118 = 'vat_118';  # НДС чека по расчетной ставке 18/118
+    const NO_VAT  = 'none';   # без НДС
+    const VAT_0   = 'vat0';    # НДС по ставке 0%
+    const VAT_10  = 'vat10';   # НДС чека по ставке 10%
+    const VAT_18  = 'vat18';   # НДС чека по ставке 18%
+    const VAT_20  = 'vat20';   # НДС чека по ставке 18%
+    const VAT_110 = 'vat110';  # НДС чека по расчетной ставке 10/110
+    const VAT_118 = 'vat118';  # НДС чека по расчетной ставке 18/118
 
     private $title;
     private $price;
     private $n;
-    private $discount_amount;
     private $nds;
 
-    function __construct($title, $price, $n = 1, $discount_amount = null, $nds = null) {
+    function __construct($title, $price, $n = 1, $nds = null) {
         $this->title = self::clean_title($title);
         $this->price = $price;
         $this->n = $n;
-        $this->discount_amount = $discount_amount;
         $this->nds = $nds ? $nds : self::NO_VAT;
     }
 
@@ -353,17 +352,13 @@ class FPaymentsRecieptItem {
         return array(
             'quantity' => $this->n,
             'price' => $this->price,
-            'discount_amount' => $this->discount_amount,
             'vat' => $this->nds,
-            'title' => $this->title,
+            'name' => $this->title,
         );
     }
 
     function get_sum() {
         $result = $this->n * $this->price;
-        if ($this->discount_amount) {
-            $result = $result - $this->discount_amount;
-        }
         return $result;
     }
 
@@ -380,5 +375,17 @@ class FPaymentsRecieptItem {
             }
         }
         return $result;
+    }
+
+    static function guess_vat($rate) {
+        if ($rate == 0) {
+            return 'vat0';
+        } else if ($rate == 10) {
+            return 'vat10';
+        } else if ($rate == 18) {
+            return 'vat18';
+        } else if ($rate == 20) {
+            return 'vat20';  // I can see the future
+        }
     }
 }

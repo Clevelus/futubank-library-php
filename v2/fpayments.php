@@ -327,7 +327,7 @@ abstract class AbstractFPaymentsCallbackHandler {
 }
 
 
-class FPaymentsRecieptItem {
+class FPaymentsReceiptItem {
     const NO_VAT  = 'none';   # без НДС
     const VAT_0   = 'vat0';    # НДС по ставке 0%
     const VAT_10  = 'vat10';   # НДС чека по ставке 10%

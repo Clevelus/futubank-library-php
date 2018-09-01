@@ -2,7 +2,7 @@
 
 namespace FPayments;
 
-class FPaymentsConfig {
+class ModuleConfig {
     const HOST = 'https://secure.futubank.com';
     const NAME = 'Futubank';
     const PREFIX = 'futubank';

@@ -40,6 +40,7 @@ class FPaymentsForm {
     private $is_test;
     private $plugininfo;
     private $cmsinfo;
+    private $callback_on_failure;
 
     function __construct(
         $merchant_id,
@@ -53,6 +54,7 @@ class FPaymentsForm {
         $this->is_test = (bool) $is_test;
         $this->plugininfo = $plugininfo ?: 'FPayments/PHP v.' . phpversion();
         $this->cmsinfo = $cmsinfo;
+        $this->callback_on_failure = false;
     }
 
     public static function abs($path) {
@@ -69,6 +71,16 @@ class FPaymentsForm {
 
     function get_rebill_url() {
         return self::abs('/api/v1/rebill/');
+    }
+
+    function enable_callback_on_failure() {
+        $this->callback_on_failure = true;
+        return $this;
+    }
+
+    function disable_callback_on_failure() {
+        $this->callback_on_failure = true;
+        return $this;
     }
 
     function compose(
@@ -108,6 +120,7 @@ class FPaymentsForm {
             'fail_url'              => $fail_url,
             'cancel_url'            => $cancel_url,
             'callback_url'          => $callback_url,
+            'callback_on_failure'   => $this->callback_on_failure,
             'meta'                  => $meta,
             'sysinfo'               => $this->get_sysinfo(),
             'recurring_frequency'   => $recurring_frequency,

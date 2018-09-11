@@ -355,7 +355,7 @@ class ReceiptItem {
     private $nds;
 
     function __construct($title, $price, $n = 1, $nds = null) {
-        $this->title = self::clean_title($title);
+        $this->title = $title;
         $this->price = $price;
         $this->n = $n;
         $this->nds = $nds ? $nds : self::NO_VAT;
@@ -372,21 +372,6 @@ class ReceiptItem {
 
     function get_sum() {
         $result = $this->n * $this->price;
-        return $result;
-    }
-
-    private static function clean_title($s, $max_chars=64) {
-        $result = '';
-        $arr = mb_str_split($s);
-        $allowed_chars = mb_str_split('0123456789"(),.:;- йцукенгшщзхъфывапролджэёячсмитьбюqwertyuiopasdfghjklzxcvbnm');
-        foreach ($arr as $char) {
-            if (mb_strlen($result) >= $max_chars) {
-                break;
-            }
-            if (in_array(mb_strtolower($char), $allowed_chars)) {
-                $result .= $char;
-            }
-        }
         return $result;
     }
 
